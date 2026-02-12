@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Events - Festivales Hardstyle</title>
+    <style>
+        :root {
+            --shadow-red: #8b0000;
+            --shadow-purple: #4a0e4e;
+            --shadow-dark: #0d0d0d;
+            --shadow-darker: #050505;
+            --shadow-text: #b0b0b0;
+            --shadow-accent: #6a0dad;
+            --shadow-blood: #ff0000;
+            --shadow-grey: #2a2a2a;
+        }
+ 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #000000;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(75, 0, 130, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 0, 0, 0.1) 0%, transparent 50%);
+            color: var(--shadow-text); 
+            margin: 0; 
+            padding: 0; 
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 0, 0, 0.03) 2px,
+                    rgba(139, 0, 0, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes smokeFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 0.5; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(139, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(139, 0, 0, 0.6); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+       
+        header { 
+            background: linear-gradient(180deg, var(--shadow-darker) 0%, var(--shadow-dark) 100%);
+            padding: 20px 5%; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid var(--shadow-red);
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 { 
+            color: #ffffff; 
+            margin: 0; 
+            font-size: 32px; 
+            letter-spacing: 4px; 
+            text-transform: uppercase;
+            text-shadow: 
+                0 0 10px rgba(139, 0, 0, 0.8),
+                0 0 20px rgba(139, 0, 0, 0.4);
+            font-weight: 300;
+        }
+ 
+        .main-container { 
+            max-width: 1300px; 
+            margin: 30px auto; 
+            padding: 0 20px 150px 20px;
+            position: relative;
+            z-index: 2;
+        }
+ 
+        .seccion { 
+            background: rgba(13, 13, 13, 0.8); 
+            padding: 30px; 
+            border-radius: 2px; 
+            border: 1px solid rgba(139, 0, 0, 0.3); 
+            margin-bottom: 40px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .grid-eventos { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 30px; 
+        }
+       
+        .card-evento { 
+            background: var(--shadow-darker); 
+            border-radius: 2px; 
+            border: 1px solid rgba(74, 14, 78, 0.4);
+            overflow: hidden; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .card-evento:nth-child(1) { animation-delay: 0.1s; }
+        .card-evento:nth-child(2) { animation-delay: 0.2s; }
+        .card-evento:nth-child(3) { animation-delay: 0.3s; }
+        .card-evento:nth-child(4) { animation-delay: 0.4s; }
+        .card-evento:nth-child(5) { animation-delay: 0.5s; }
+        .card-evento:nth-child(6) { animation-delay: 0.6s; }
+
+        .card-evento::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--shadow-red), var(--shadow-purple));
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: -1;
+            filter: blur(10px);
+        }
+        
+        .card-evento:hover::before {
+            opacity: 0.3;
+        }
+        
+        .card-evento:hover { 
+            transform: translateY(-8px); 
+            border-color: rgba(139, 0, 0, 0.8);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(139, 0, 0, 0.3);
+        }
+       
+        .img-box { 
+            width: 100%; 
+            height: 280px; 
+            background: #000; 
+            overflow: hidden; 
+            position: relative;
+        }
+        
+        .img-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(0,0,0,1), transparent);
+            z-index: 1;
+        }
+
+        .img-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(139, 0, 0, 0.2);
+            mix-blend-mode: multiply;
+            z-index: 2;
+        }
+        
+        .img-box img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: grayscale(50%) brightness(0.7);
+        }
+        
+        .card-evento:hover .img-box img {
+            transform: scale(1.15);
+            filter: grayscale(20%) brightness(0.9);
+        }
+        
+        .fecha-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.9), rgba(74, 14, 78, 0.9));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 1px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 3;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+       
+        .info-box { 
+            padding: 20px; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(13, 13, 13, 1), rgba(5, 5, 5, 1));
+        }
+        
+        .info-box strong { 
+            color: #ffffff; 
+            font-size: 20px; 
+            display: block; 
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 400;
+        }
+        
+        .ubicacion {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-style: italic;
+        }
+        
+        .precio { 
+            color: var(--shadow-red); 
+            font-size: 28px; 
+            font-weight: 300; 
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(139, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+ 
+        .btn-add { 
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.8), rgba(74, 14, 78, 0.8));
+            color: #ffffff; 
+            border: 1px solid rgba(139, 0, 0, 0.5); 
+            padding: 12px; 
+            cursor: pointer; 
+            border-radius: 1px; 
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.3s;
+            font-size: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-add::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-add:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-add:hover {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 1), rgba(74, 14, 78, 1));
+            border-color: rgba(139, 0, 0, 0.8);
+            box-shadow: 
+                0 0 20px rgba(139, 0, 0, 0.4),
+                inset 0 0 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+ 
+        #cart-sidebar {
+            position: fixed; 
+            right: -400px; 
+            top: 0; 
+            width: 380px; 
+            height: 100%;
+            background: linear-gradient(180deg, rgba(13, 13, 13, 0.98), rgba(5, 5, 5, 0.98));
+            border-left: 1px solid rgba(139, 0, 0, 0.5);
+            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.9); 
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 1000;
+            display: flex; 
+            flex-direction: column; 
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+        
+        #cart-sidebar.active { right: 0; }
+        
+        .cart-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(139, 0, 0, 0.3); 
+            padding-bottom: 15px; 
+            margin-bottom: 20px; 
+        }
+        
+        .cart-items { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+        }
+
+        .cart-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .cart-items::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .cart-items::-webkit-scrollbar-thumb {
+            background: rgba(139, 0, 0, 0.5);
+            border-radius: 3px;
+        }
+        
+        .item-carrito { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(42, 42, 42, 0.3); 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            border-radius: 1px; 
+            border: 1px solid rgba(74, 14, 78, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .item-carrito:hover {
+            background: rgba(74, 14, 78, 0.2);
+            border-color: rgba(139, 0, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .btn-remove { 
+            background: rgba(139, 0, 0, 0.8); 
+            color: white; 
+            border: 1px solid rgba(139, 0, 0, 0.5); 
+            border-radius: 1px; 
+            cursor: pointer; 
+            width: 28px;
+            height: 28px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn-remove:hover {
+            background: rgba(139, 0, 0, 1);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.5);
+        }
+ 
+        /* CHAT HORIZONTAL EN ESQUINA INFERIOR DERECHA */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 500px;
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.95), rgba(5, 5, 5, 0.95));
+            border-radius: 2px;
+            border: 1px solid rgba(139, 0, 0, 0.4);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(139, 0, 0, 0.2);
+            z-index: 999;
+            overflow: hidden;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .chat-header {
+            background: linear-gradient(90deg, rgba(139, 0, 0, 0.8), rgba(74, 14, 78, 0.8));
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .chat-header h3 {
+            margin: 0;
+            color: white;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 400;
+        }
+        
+        .chat-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .chat-container.minimized {
+            height: 45px;
+        }
+        
+        .chat-container.minimized .chat-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .chat-body {
+            padding: 15px;
+            max-height: 200px;
+            transition: all 0.3s;
+        }
+        
+        .chat-container.minimized .chat-body {
+            max-height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #chat-display { 
+            height: 120px; 
+            overflow-y: auto; 
+            background: rgba(0, 0, 0, 0.6);
+            margin-bottom: 12px; 
+            padding: 12px; 
+            border: 1px solid rgba(74, 14, 78, 0.3);
+            border-radius: 1px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px;
+        }
+        
+        #chat-display::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #chat-display::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        #chat-display::-webkit-scrollbar-thumb {
+            background: rgba(139, 0, 0, 0.5);
+            border-radius: 3px;
+        }
+        
+        .chat-message {
+            padding: 8px;
+            border-radius: 1px;
+            background: rgba(42, 42, 42, 0.4);
+            border-left: 2px solid rgba(139, 0, 0, 0.5);
+            font-size: 13px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .bot-msg { 
+            color: #999; 
+            font-weight: 400;
+            background: rgba(74, 14, 78, 0.2);
+            border-left-color: rgba(74, 14, 78, 0.8);
+        }
+        
+        .sys-msg { 
+            color: #666; 
+            font-style: italic; 
+            font-size: 11px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .chat-input-container input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 1px;
+            border: 1px solid rgba(74, 14, 78, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .chat-input-container input:focus {
+            outline: none;
+            border-color: rgba(139, 0, 0, 0.6);
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.2);
+        }
+        
+        .chat-input-container input::placeholder {
+            color: #555;
+        }
+        
+        .chat-input-container button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.8), rgba(74, 14, 78, 0.8));
+            color: white;
+            border: 1px solid rgba(139, 0, 0, 0.5);
+            border-radius: 1px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+        
+        .chat-input-container button:hover {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 1), rgba(74, 14, 78, 1));
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.4);
+        }
+ 
+        #checkout-form { 
+            display: none; 
+            padding-top: 15px; 
+            border-top: 1px solid rgba(139, 0, 0, 0.3); 
+        }
+        
+        input { 
+            width: 90%; 
+            padding: 12px; 
+            margin-bottom: 12px; 
+            border-radius: 1px; 
+            border: 1px solid rgba(74, 14, 78, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(139, 0, 0, 0.6);
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.2);
+        }
+        
+        input::placeholder {
+            color: #555;
+        }
+        
+        .btn-confirmar { 
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.8), rgba(74, 14, 78, 0.8));
+            color: white; 
+            border: 1px solid rgba(139, 0, 0, 0.5); 
+            padding: 15px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            width: 100%; 
+            border-radius: 1px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+        
+        .btn-confirmar:hover {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 1), rgba(74, 14, 78, 1));
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body onload="iniciarChat()">
+ 
+    <div id="cart-sidebar">
+        <div class="cart-header">
+            <h3 style="margin:0; color:#ffffff; text-transform: uppercase; letter-spacing: 2px; font-weight: 300;">🎫 Tus Entradas</h3>
+            <button onclick="toggleCart()" style="background:none; border:none; color:white; font-size:28px; cursor:pointer; opacity: 0.7; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">×</button>
+        </div>
+        <div id="cart-items" class="cart-items"></div>
+        <div style="padding: 20px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:24px; margin-bottom:20px; font-weight: 300;">
+                <span>Total:</span> 
+                <span id="cart-total-val" style="color:var(--shadow-red);">$0.00</span>
+            </div>
+            <button class="btn-confirmar" id="btn-pre-pago" onclick="mostrarCheckout()">Confirmar Compra</button>
+            <div id="checkout-form">
+                <input type="text" id="userAlias" placeholder="Tu nombre completo">
+                <input type="email" id="userEmail" placeholder="Tu email">
+                <button class="btn-confirmar" onclick="procesarPago()">Procesar Pago</button>
+            </div>
+        </div>
+    </div>
+ 
+    <header>
+        <h1>CLUB HARDCORE</h1>
+        <button class="btn-add" style="width: auto; padding: 12px 25px; position: relative;" onclick="toggleCart()">
+            <span style="position: relative; z-index: 1;"> CARRITO (<span id="cart-count">0</span>)</span>
+        </button>
+    </header>
+ 
+    <div class="main-container">
+        <div class="seccion">
+            <h2 style="color: #ffffff; margin-top: 0; text-transform: uppercase; letter-spacing: 3px; font-size: 24px; font-weight: 300; opacity: 0.9;">
+                Próximos Eventos Hardstyle
+            </h2>
+            <div class="grid-eventos">
+                <div class="card-evento">
+                    <div class="fecha-badge">25 JUNE 2026</div>
+                    <div class="img-box">
+                        <img src="C:\Users\DELL\Documents\phpinfo3\imag\Imagen de WhatsApp 2025-06-14 a las 11.49.27_d837ac3d.jpg" alt="Defqon.1">
+                    </div>
+                    <div class="info-box">
+                        <strong>Defqon.1 Festival</strong>
+                        <div class="ubicacion">Países Bajos</div>
+                        <span class="precio">$180.00</span>
+                        <button class="btn-add" onclick="agregar('Defqon.1 Festival', 180)"><span style="position: relative; z-index: 1;">Comprar Entrada</span></button>
+                    </div>
+                </div>
+                
+                <div class="card-evento">
+                    <div class="fecha-badge">16 NOVEMBER 2024</div>
+                    <div class="img-box">
+                        <img src="C:\Users\DELL\Documents\phpinfo3\imag\MV5BY2ZhNjM0NWQtM2ZlNi00ZDNiLWFhNmItNGExZDBiOTE1NGRkXkEyXkFqcGc@._V1_.jpg" alt="Qlimax">
+                    </div>
+                    <div class="info-box">
+                        <strong>Qlimax</strong>
+                        <div class="ubicacion"> Amsterdam</div>
+                        <span class="precio">$150.00</span>
+                        <button class="btn-add" onclick="agregar('Qlimax', 150)"><span style="position: relative; z-index: 1;">Comprar Entrada</span></button>
+                    </div>
+                </div>
+                
+                <div class="card-evento">
+                    <div class="fecha-badge">10 October 2026</div>
+                    <div class="img-box">
+                        <img src="C:\Users\DELL\Documents\phpinfo3\imag\190209_215945_hard_bass_delio_hr__1_.jpg" alt="Hard Bass">
+                    </div>
+                    <div class="info-box">
+                        <strong>Hard Bass</strong>
+                        <div class="ubicacion"> Gelredome</div>
+                        <span class="precio">$120.00</span>
+                        <button class="btn-add" onclick="agregar('Hard Bass', 120)"><span style="position: relative; z-index: 1;">Comprar Entrada</span></button>
+                    </div>
+                </div>
+                
+                <div class="card-evento">
+                    <div class="fecha-badge">27 february 2026</div>
+                    <div class="img-box">
+                        <img src="C:\Users\DELL\Documents\phpinfo3\imag\reverze-2025-header-3.jpg" alt="Reverze">
+                    </div>
+                    <div class="info-box">
+                        <strong>Reverze</strong>
+                        <div class="ubicacion"> Bélgica</div>
+                        <span class="precio">$140.00</span>
+                        <button class="btn-add" onclick="agregar('Reverze', 140)"><span style="position: relative; z-index: 1;">Comprar Entrada</span></button>
+                    </div>
+                </div>
+                
+                <div class="card-evento">
+                    <div class="fecha-badge">05 JUNE 2026</div>
+                    <div class="img-box">
+                        <img src="C:\Users\DELL\Documents\phpinfo3\imag\maxresdefault.jpg" alt="Intents">
+                    </div>
+                    <div class="info-box">
+                        <strong>Intents Festival</strong>
+                        <div class="ubicacion"> Países Bajos</div>
+                        <span class="precio">$160.00</span>
+                        <button class="btn-add" onclick="agregar('Intents Festival', 160)"><span style="position: relative; z-index: 1;">Comprar Entrada</span></button>
+                    </div>
+                </div>
+                
+                <div class="card-evento">
+                    <div class="fecha-badge">28 MAR 2026</div>
+                    <div class="img-box">
+                        <img src="C:\Users\DELL\Documents\phpinfo3\imag\20240330_2243_MOH_BobbiePhotography_135_HR-scaled.jpeg" alt="Masters of Hardcore">
+                    </div>
+                    <div class="info-box">
+                        <strong>Masters of Hardcore</strong>
+                        <div class="ubicacion"> Países Bajos</div>
+                        <span class="precio">$130.00</span>
+                        <button class="btn-add" onclick="agregar('Masters of Hardcore', 130)"><span style="position: relative; z-index: 1;">Comprar Entrada</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CHAT HORIZONTAL EN ESQUINA INFERIOR DERECHA -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header" onclick="toggleChat()">
+            <h3>💬 Comunidad</h3>
+            <button class="chat-toggle" id="chatToggleBtn">▼</button>
+        </div>
+        <div class="chat-body">
+            <div id="chat-display"></div>
+            <div class="chat-input-container">
+                <input type="text" id="cAlias" placeholder="Alias" style="max-width: 100px;">
+                <input type="text" id="cMsg" placeholder="Escribe un mensaje...">
+                <button onclick="enviarChat()">Enviar</button>
+            </div>
+        </div>
+    </div>
+ 
+    <script>
+        let carrito = [];
+        let total = 0;
+ 
+        function toggleCart() { 
+            document.getElementById('cart-sidebar').classList.toggle('active'); 
+        }
+        
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            const toggleBtn = document.getElementById('chatToggleBtn');
+            chatContainer.classList.toggle('minimized');
+            toggleBtn.textContent = chatContainer.classList.contains('minimized') ? '▲' : '▼';
+        }
+ 
+        function agregar(nombre, precio) {
+            carrito.push({nombre, precio});
+            total += precio;
+            actualizarInterfaz();
+            if(!document.getElementById('cart-sidebar').classList.contains('active')) toggleCart();
+        }
+ 
+        function eliminar(index) {
+            total -= carrito[index].precio;
+            carrito.splice(index, 1);
+            actualizarInterfaz();
+        }
+ 
+        function actualizarInterfaz() {
+            const container = document.getElementById('cart-items');
+            document.getElementById('cart-count').innerText = carrito.length;
+            document.getElementById('cart-total-val').innerText = "$" + total.toFixed(2);
+            if(carrito.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px; font-style: italic; font-size: 13px;">Tu carrito está vacío</p>';
+                document.getElementById('btn-pre-pago').style.display = "none";
+            } else {
+                document.getElementById('btn-pre-pago').style.display = "block";
+                container.innerHTML = carrito.map((item, index) => `
+                    <div class="item-carrito">
+                        <div>
+                            <div style="font-weight: 500; margin-bottom: 5px; color: #ffffff; font-size: 14px;">${item.nombre}</div>
+                            <div style="color: var(--shadow-red); font-size: 16px; font-weight: 300;">$${item.precio}</div>
+                        </div>
+                        <button class="btn-remove" onclick="eliminar(${index})">×</button>
+                    </div>
+                `).join('');
+            }
+        }
+ 
+        function mostrarCheckout() {
+            document.getElementById('btn-pre-pago').style.display = "none";
+            document.getElementById('checkout-form').style.display = "block";
+        }
+ 
+        function procesarPago() {
+            const alias = document.getElementById('userAlias').value;
+            const email = document.getElementById('userEmail').value;
+            if(!alias || !email) return alert("Por favor completa todos los campos.");
+            
+            const token = 'SHD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            alert("Compra Confirmada\n\nToken: " + token + "\nNombre: " + alias + "\nEmail: " + email + "\nTotal: $" + total.toFixed(2) + "\n\nRecibirás tus entradas por email.");
+            location.reload();
+        }
+ 
+        function iniciarChat() {
+            document.getElementById('chat-display').innerHTML = `
+                <div class="sys-msg">
+                    Sistema: Bienvenido al chat de Shadow Events
+                </div>
+            `;
+        }
+ 
+        function enviarChat() {
+            const a = document.getElementById('cAlias').value;
+            const m = document.getElementById('cMsg').value;
+            if(a && m) {
+                const d = document.getElementById('chat-display');
+                d.innerHTML += `
+                    <div class="chat-message">
+                        <strong style="color: var(--shadow-red);">${a}:</strong> ${m}
+                    </div>
+                `;
+                document.getElementById('cMsg').value = "";
+                d.scrollTop = d.scrollHeight;
+                
+                setTimeout(() => {
+                    const bots = ["DarkRaver", "ShadowBass", "NightCrawler", "VoidSeeker"];
+                    const responses = [
+                        "El ambiente será increíble...",
+                        "Ya tengo mi entrada",
+                        "¿Alguien más va?",
+                        "La mejor decisión del año",
+                        "Nos vemos allá"
+                    ];
+                    const rBot = bots[Math.floor(Math.random() * bots.length)];
+                    const rResp = responses[Math.floor(Math.random() * responses.length)];
+                    d.innerHTML += `
+                        <div class="chat-message bot-msg">
+                            <strong>${rBot}:</strong> ${rResp}
+                        </div>
+                    `;
+                    d.scrollTop = d.scrollHeight;
+                }, 1500);
+            }
+        }
+        
+        // Permitir enviar con Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('cMsg').addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    enviarChat();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
